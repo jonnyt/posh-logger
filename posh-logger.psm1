@@ -54,7 +54,7 @@ Function Get-Logger
             {
 		        # rename current logfile
 		        $newname = $this.LogPath + "-" + (Get-Date).Year + "-" + (Get-Date).Month + "-" + (Get-Date).Day + ".archive"
-		        Move-Item -Path $this.LogPath -Destination $newname
+		        Move-Item -Path $this.LogPath -Destination $newname -Force
 	        }
         }
 	
