@@ -15,8 +15,7 @@ Function Get-Logger
 {
     Param(
         [Parameter(Mandatory=$False)][string]$LogPath,
-        [Parameter(Mandatory=$False)][Int32]$RotateSize = 10Mb,
-        [Parameter(Mandatory=$False)][switch]$OutputToConsole=$False
+        [Parameter(Mandatory=$False)][Int32]$RotateSize = 10Mb
     )
 
     # If a LogPath is not included try to get the calling scripts properties and create one, throw an exception if not calling script
@@ -96,14 +95,15 @@ Function Get-Logger
                     Write-Verbose "File locked, sleeping"
                 }
             }
-        }
-        if($this.OutputToConsole)
-        {
-            if($type -eq [LogType]::INFO){Write-Host $thisMessage -ForegroundColor White}
-            if($type -eq [LogType]::ERROR){Write-Host $thisMessage -ForegroundColor Red}
-            if($type -eq [LogType]::WARN){Write-Host $thisMessage -ForegroundColor Yellow}
-            if($type -eq [LogType]::DEBUG){Write-Host $thisMessage -ForegroundColor Cyan}
-            if($type -eq [LogType]::VERBOSE){Write-Host $thisMessage -ForegroundColor Cyan}
+
+            if($VerbosePreference -eq 'continue')
+            {
+                Write-Verbose $thisMessage
+            }
+            if($DebugPreference -eq 'continue')
+            {
+                Write-Debug $thisMessage
+            }
         }
     }
 
