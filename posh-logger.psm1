@@ -69,6 +69,7 @@ Function Get-Logger
         {
             "INFO" {$doOutput=$true; continue}
             "ERROR" {$doOutput=$true; continue}
+            "WARN" {$doOutput=$true; continue}
             "DEBUG" {if($DebugPreference='Continue'){$doOutput=$true}; continue}
             "VERBOSE" {if($VerbosePreference='Continue'){$doOutput=$true}; continue}
         }
