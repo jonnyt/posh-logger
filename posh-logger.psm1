@@ -15,7 +15,8 @@ Function Get-Logger
 {
     Param(
         [Parameter(Mandatory=$False)][string]$LogPath,
-        [Parameter(Mandatory=$False)][Int32]$RotateSize = 10Mb
+        [Parameter(Mandatory=$False)][Int32]$RotateSize = 10Mb,
+        [Parameter(Mandatory=$False)][Int32]$LogsToKeep = 5
     )
 
     # If a LogPath is not included try to get the calling scripts properties and create one, throw an exception if not calling script
@@ -27,7 +28,7 @@ Function Get-Logger
         {
             Throw "When calling Get-Logger outside of a .ps1 script please include the -LogPath parameter"
         }
-        $LogPath = "$($invocation.PSCommandPath).log"
+        $LogPath = $invocation.PSCommandPath -replace '(.*\.)(ps1)','$1log'
         Write-Verbose "Created log file $LogPath"
     }
 
@@ -36,7 +37,7 @@ Function Get-Logger
     Add-Member -InputObject $logger -MemberType NoteProperty -Name LogPath -Value $LogPath
     Add-Member -InputObject $logger -MemberType NoteProperty -Name RotateSize -Value $RotateSize
     Add-Member -InputObject $logger -MemberType NoteProperty -Name OutputToConsole -Value $OutputToConsole
-
+    Add-Member -InputObject $logger -MemberType NoteProperty -Name LogsToKeep -Value $LogsToKeep
 
     # Create our custom object methods
     $writeLog = 
@@ -45,15 +46,19 @@ Function Get-Logger
             [Parameter(Mandatory=$True)][ValidateNotNullOrEmpty()][string]$Message,
             [Parameter(Mandatory=$False)][LogType]$type=[LogType]::INFO
         )
-
+        
         # Rollover logfile if greater than $rotateSize
         if (Test-Path $this.LogPath)
         {
 	        if (((Get-Item $this.LogPath).Length / $this.RotateSize) -gt 1) 
             {
 		        # rename current logfile
-		        $newname = $this.LogPath + "-" + (Get-Date).Year + "-" + (Get-Date).Month + "-" + (Get-Date).Day + ".archive"
+		        $newname = $this.LogPath -replace '(.*\.)(log)','$1'
+                $newname += "$(get-date -UFormat %Y%m%d-%M%S).log"
 		        Move-Item -Path $this.LogPath -Destination $newname -Force
+
+                # clean up old files
+                Get-ChildItem -Path (Split-Path $this.LogPath -Parent) | ? {$_.Name -match '^.*\.\d+-\d+\.log' } | Sort-Object -Descending -Property LastWriteTime | Select -Skip $this.LogsToKeep | Remove-Item -Force -Confirm:$false
 	        }
         }
 	
