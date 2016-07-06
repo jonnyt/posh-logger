@@ -75,8 +75,8 @@ Function Get-Logger
             "INFO" {$doOutput=$true; continue}
             "ERROR" {$doOutput=$true; continue}
             "WARN" {$doOutput=$true; continue}
-            "DEBUG" {if($DebugPreference='Continue'){$doOutput=$true}; continue}
-            "VERBOSE" {if($VerbosePreference='Continue'){$doOutput=$true}; continue}
+            "DEBUG" {if($DebugPreference -eq 'Continue'){$doOutput=$true}; continue}
+            "VERBOSE" {if($VerbosePreference -eq 'Continue'){$doOutput=$true}; continue}
         }
 
         if($doOutput)
@@ -102,14 +102,8 @@ Function Get-Logger
                 }
             }
 
-            if($VerbosePreference -eq 'continue')
-            {
-                Write-Verbose $thisMessage
-            }
-            if($DebugPreference -eq 'continue')
-            {
-                Write-Debug $thisMessage
-            }
+            $InformationPreference = 'Continue'
+            Write-Information $thisMessage
         }
     }
 
