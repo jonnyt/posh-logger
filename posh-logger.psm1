@@ -139,11 +139,20 @@ Function Get-Logger
         $this.writeLog($Message, [LogType]::DEBUG)
     }
 
+    $verbose = 
+    {
+        Param(
+            [Parameter(Mandatory=$True)][ValidateNotNullOrEmpty()][string]$Message
+        )
+        $this.writeLog($Message, [LogType]::VERBOSE)
+    }
+
     Add-Member -InputObject $logger -MemberType ScriptMethod -Name WriteLog -Value $writeLog @args
     Add-Member -InputObject $logger -MemberType ScriptMethod -Name Info -Value $info @args
     Add-Member -InputObject $logger -MemberType ScriptMethod -Name Warn -Value $warn @args
     Add-Member -InputObject $logger -MemberType ScriptMethod -Name Error -Value $error @args
     Add-Member -InputObject $logger -MemberType ScriptMethod -Name Debug -Value $debug @args
+    Add-Member -InputObject $logger -MemberType ScriptMethod -Name Verbose -Value $verbose @args
 
     # Put the object on the pipeline
     $logger
