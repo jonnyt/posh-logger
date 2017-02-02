@@ -103,7 +103,11 @@ Function Get-Logger
             }
 
             $InformationPreference = 'Continue'
-            Write-Information $thisMessage
+            if(Get-Command "Write-Information" -ErrorAction SilentlyContinue){
+                Write-Information $thisMessage
+            } else {
+                Write-Host $thisMessage
+            }
         }
     }
 
